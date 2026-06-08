@@ -1,0 +1,6 @@
+polars>=1.0.0
+pyarrow>=16.0.0
+python-dotenv>=1.0.1
+tqdm>=4.66
+torch>=2.2
+tushare==1.4.24

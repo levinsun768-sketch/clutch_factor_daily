@@ -1,0 +1,73 @@
+# Secrets
+.env
+*.env
+!.env.example
+research_workspace/.env
+application/backend/.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# Node / frontend build
+application/frontend/node_modules/
+application/frontend/dist/
+application/frontend/.vite/
+application/frontend/tsconfig.tsbuildinfo
+
+# Research data and generated artifacts
+research_workspace/artifacts/
+research_workspace/logs/
+research_workspace/data/bronze/
+research_workspace/data/silver/
+research_workspace/data/gold/
+research_workspace/data/tensors/
+research_workspace/data/barra/
+research_workspace/downstream/run/
+research_workspace/test_signal.parquet
+
+# Large generated file types
+*.parquet
+*.feather
+*.arrow
+*.csv
+*.h5
+*.hdf5
+*.npy
+*.npz
+*.pkl
+*.joblib
+*.pt
+*.pth
+*.ckpt
+*.onnx
+*.safetensors
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.webp
+*.pdf
+*.log
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Runtime logs
+/tmp/
+*.pid
+
+# Internal notes / handoff docs
+CLUTCH_FACTOR_PRODUCT_DESIGN.md
+application/TODO.md
+research_workspace/AUTODL_HANDOFF.md
+research_workspace/DESIGN.md
