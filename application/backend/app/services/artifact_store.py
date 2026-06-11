@@ -72,7 +72,10 @@ def clean_float(value: Any) -> float | None:
 def normalize_date(value: str | None) -> str | None:
     if not value:
         return None
-    return value.replace("-", "")
+    raw = str(value).strip()
+    if not raw or raw.lower() in {"latest", "current", "default", "none", "null"}:
+        return None
+    return raw.replace("-", "")
 
 
 def display_date(value: str | None) -> str | None:
@@ -108,7 +111,7 @@ def status_lights(rank_ic: float | None, icir: float | None, max_drawdown: float
 
 class ArtifactStore:
     def __init__(self, settings: Settings):
-        self.root = settings.research_workspace
+        self.root = settings.source_code
         self.product_root = self.root / "artifacts" / "product"
 
     def product_manifest_path(self) -> Path:
@@ -125,10 +128,19 @@ class ArtifactStore:
         manifest = self.product_manifest()
         if not manifest:
             return None
+        fallback = self.product_root / "current"
         product_root = manifest.get("product_root")
         if product_root:
-            return Path(product_root).expanduser().resolve()
-        return self.product_root / "current"
+            path = Path(product_root).expanduser().resolve()
+            # Older manifests may contain absolute paths from a pre-renamed
+            # workspace directory. Prefer the configured source_code tree
+            # when the manifest path is stale or points outside it.
+            try:
+                path.relative_to(self.root)
+            except ValueError:
+                return fallback
+            return path if path.exists() else fallback
+        return fallback
 
     def product_path(self, key: str, date: str | None = None, universe: str = "all") -> Path | None:
         manifest = self.product_manifest()
@@ -145,7 +157,7 @@ class ArtifactStore:
         product = self.product_manifest()
         portfolio_run = self.latest_portfolio_run()
         return {
-            "research_workspace": str(self.root),
+            "source_code": str(self.root),
             "exists": self.root.exists(),
             "product_manifest": str(self.product_manifest_path()) if self.product_manifest_path().exists() else None,
             "product_trade_date": display_date(product.get("trade_date")) if product else None,
@@ -608,9 +620,22 @@ class ArtifactStore:
             return {"available": False}
         summary_path = run / "summary.json"
         returns_path = run / "daily_returns.parquet"
+        returns_benchmark_path = run / "returns_with_benchmark.parquet"
+        style_exposure_path = run / "style_exposure_timeseries.parquet"
+
         summary = json.loads(summary_path.read_text(encoding="utf-8")) if summary_path.exists() else {}
         daily = []
-        if returns_path.exists():
+
+        # 优先使用带benchmark的数据
+        if returns_benchmark_path.exists():
+            daily = (
+                pl.scan_parquet(str(returns_benchmark_path))
+                .with_columns(pl.col("trade_date").map_elements(display_date, return_dtype=pl.Utf8).alias("date"))
+                .select(["date", "net_nav", "net_ret", "turnover", "benchmark_nav", "benchmark_ret_decimal", "excess_nav", "excess_ret"])
+                .collect()
+                .to_dicts()
+            )
+        elif returns_path.exists():
             daily = (
                 pl.scan_parquet(str(returns_path))
                 .with_columns(pl.col("exec_date").map_elements(display_date, return_dtype=pl.Utf8).alias("date"))
@@ -618,7 +643,26 @@ class ArtifactStore:
                 .collect()
                 .to_dicts()
             )
-        return {"available": True, "portfolio_id": portfolio_id, "portfolio_run": self._rel(run), "summary": summary, "daily": daily}
+
+        # 加载Barra风格暴露时间序列
+        style_timeseries = []
+        if style_exposure_path.exists():
+            style_timeseries = (
+                pl.scan_parquet(str(style_exposure_path))
+                .with_columns(pl.col("trade_date").map_elements(display_date, return_dtype=pl.Utf8).alias("date"))
+                .select(["date", *STYLE_FACTORS])
+                .collect()
+                .to_dicts()
+            )
+
+        return {
+            "available": True,
+            "portfolio_id": portfolio_id,
+            "portfolio_run": self._rel(run),
+            "summary": summary,
+            "daily": daily,
+            "style_timeseries": style_timeseries
+        }
 
     def holdings_style_exposure(self, date: str, codes: list[str]) -> dict[str, float | None]:
         if not codes:

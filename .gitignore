@@ -2,7 +2,7 @@
 .env
 *.env
 !.env.example
-research_workspace/.env
+source_code/.env
 application/backend/.env
 
 # Python
@@ -20,16 +20,23 @@ application/frontend/dist/
 application/frontend/.vite/
 application/frontend/tsconfig.tsbuildinfo
 
-# Research data and generated artifacts
-research_workspace/artifacts/
-research_workspace/logs/
-research_workspace/data/bronze/
-research_workspace/data/silver/
-research_workspace/data/gold/
-research_workspace/data/tensors/
-research_workspace/data/barra/
-research_workspace/downstream/run/
-research_workspace/test_signal.parquet
+# Source data and generated artifacts
+source_code/artifacts/*
+!source_code/artifacts/models/
+source_code/artifacts/models/*
+!source_code/artifacts/models/run_20260531_190247/
+source_code/artifacts/models/run_20260531_190247/*
+!source_code/artifacts/models/run_20260531_190247/config.json
+!source_code/artifacts/models/run_20260531_190247/summary.json
+
+source_code/logs/
+source_code/data/bronze/
+source_code/data/silver/
+source_code/data/gold/
+source_code/data/tensors/
+source_code/data/barra/
+source_code/downstream/run/
+source_code/test_signal.parquet
 
 # Large generated file types
 *.parquet
@@ -42,11 +49,12 @@ research_workspace/test_signal.parquet
 *.npz
 *.pkl
 *.joblib
-*.pt
 *.pth
 *.ckpt
 *.onnx
 *.safetensors
+*.pt
+model_weights.tar.gz
 *.png
 *.jpg
 *.jpeg
@@ -69,5 +77,5 @@ research_workspace/test_signal.parquet
 # Internal notes / handoff docs
 CLUTCH_FACTOR_PRODUCT_DESIGN.md
 application/TODO.md
-research_workspace/AUTODL_HANDOFF.md
-research_workspace/DESIGN.md
+source_code/AUTODL_HANDOFF.md
+source_code/DESIGN.md

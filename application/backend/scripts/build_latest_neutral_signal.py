@@ -25,7 +25,7 @@ STYLE_FACTORS = [
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Build Barra-neutral signal without forward-return labels.")
-    parser.add_argument("--research-workspace", default="../../research_workspace")
+    parser.add_argument("--research-workspace", default="../../source_code")
     parser.add_argument("--signal-path", required=True)
     parser.add_argument("--signal-col", default="score")
     parser.add_argument("--start-date", default="20250102")
@@ -123,7 +123,7 @@ def write_ewma(neutral: pd.DataFrame, out_dir: Path, spans: list[int]) -> None:
 
 def main() -> None:
     args = parse_args()
-    research = resolve_research(args.research_workspace)
+    research = resolve_research(args.source_code)
     joined = load_joined(args, research)
     if joined.empty:
         raise ValueError("No joined signal/exposure rows.")

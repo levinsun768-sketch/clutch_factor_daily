@@ -1,0 +1,7 @@
+{
+  "best_epoch": 20,
+  "best_metric": 0.19022372291989662,
+  "run_dir": "/root/autodl-tmp/fingerprints_daily_autodl_notensor/package_snapshot/artifacts/models/run_20260531_190247",
+  "train_samples": 3872795,
+  "val_samples": 1627874
+}

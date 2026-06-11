@@ -1,0 +1,152 @@
+# Clutch Factor - Model Weights Download
+
+## 模型权重文件 (Model Weights) [REQUIRED]
+
+**下载地址**:
+```
+https://github.com/levinsun768-sketch/clutch_factor_daily/releases/download/v1.0/model_weights.tar.gz
+```
+
+**文件大小**: 7.8 MB
+
+**包含内容**:
+- `best.pt` - 训练最优权重 (validation loss 最低)
+- `last.pt` - 最后一个 epoch 权重
+
+**解压路径**:
+```bash
+# 在项目根目录执行
+tar -xzf model_weights.tar.gz
+```
+
+解压后模型权重会自动放到正确位置:
+```
+source_code/artifacts/models/run_20260531_190247/checkpoints/
+├── best.pt
+└── last.pt
+```
+
+---
+
+## 模型架构信息
+
+**模型类型**: Transformer Encoder-Decoder (Autoencoder)
+
+**输入**:
+- 维度: 26 特征 × 40 天时间窗口
+- 特征: 价格特征 (19维) + 成交量特征 (7维)
+
+**输出**:
+- 维度: 64维 Fingerprint (每日单一向量)
+- 用途: 量价指纹，用于下游 GRU 预测模型
+
+**训练参数**:
+- d_model: 64
+- num_layers: 3
+- nhead: 4
+- dim_feedforward: 256
+- 训练数据: 2021-04-02 ~ 2024-12-31
+- 验证数据: 2025-01-01 ~ 2026-05-29
+
+**损失函数**:
+- L_encoder: Masked Trade Reconstruction (λ_b = 1.0)
+- L_decoder: Causal Price Prediction (λ_f = 1.0)
+- L_diversity: Variance Regularization (λ_d = 0.3)
+- L_orthogonality: Decorrelation (λ_o = 0.3)
+- L_uniformity: Spread Regularization (λ_u = 0.3)
+
+---
+
+## 快速开始 (Quick Start)
+
+### 1. 克隆代码
+```bash
+git clone https://github.com/levinsun768-sketch/clutch_factor_daily.git
+cd clutch_factor_daily
+```
+
+### 2. 下载并解压模型权重
+```bash
+# 从 GitHub Release 下载
+wget https://github.com/levinsun768-sketch/clutch_factor_daily/releases/download/v1.0/model_weights.tar.gz
+
+# 解压
+tar -xzf model_weights.tar.gz
+
+# 验证文件
+ls -lh source_code/artifacts/models/run_20260531_190247/checkpoints/
+```
+
+### 3. 配置环境
+```bash
+# 研究环境
+cd source_code
+cp .env.example .env
+# 编辑 .env 填入 TUSHARE_TOKEN
+
+# 后端服务
+cd ../application/backend
+cp .env.example .env
+# 编辑 .env 填入 OPENROUTER_API_KEY (可选，仅 Agent 功能需要)
+```
+
+### 4. 运行服务
+```bash
+# 后端
+cd application/backend
+uvicorn app.main:app --host 0.0.0.0 --port 8000
+
+# 前端
+cd application/frontend
+npm install
+npm run dev -- --host 0.0.0.0 --port 5173
+```
+
+访问: http://localhost:5173
+
+---
+
+## 数据获取 (可选 - 仅需从零训练时)
+
+**原始数据**:
+- 来源: Tushare Pro API (需要积分 5000+)
+- 数据量: ~25GB
+- 时间范围: 2021-04-02 ~ 2026-06-10
+- 股票池: 全A股 5,512 只
+
+**已生成的 Fingerprints 数据**:
+- 文件: `source_code/artifacts/models/run_20260531_190247/fp_dataset/`
+- 大小: ~3.7GB
+- 说明: 如需要完整的 fingerprints 数据用于回测，可联系作者获取
+
+**注意**: 本项目交付的代码和模型权重已足够运行 Web 应用和查看结果。
+从零训练模型需要原始数据，但不是运行应用的必要条件。
+
+---
+
+## 文件清单
+
+```
+project/
+├── model_weights.tar.gz           # 7.8MB, 上传到 GitHub Release
+├── MODEL_LINK.txt                 # 本说明文件
+├── source_code/
+│   └── artifacts/models/run_20260531_190247/
+│       ├── checkpoints/           # 模型权重（解压后）
+│       ├── config.json            # 训练配置
+│       ├── history.csv            # 训练曲线
+│       └── summary.json           # 训练总结
+├── application/
+│   ├── backend/                   # FastAPI 后端
+│   └── frontend/                  # Vue3 前端
+└── README.md                      # 项目说明
+
+```
+
+---
+
+## 技术支持
+
+如有问题请提 Issue 或联系作者。
+
+**项目地址**: https://github.com/levinsun768-sketch/clutch_factor_daily

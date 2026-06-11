@@ -8,10 +8,12 @@ from pydantic import BaseModel
 
 from app.core.config import load_settings
 from app.services.artifact_store import ArtifactStore, normalize_date, normalize_factor_id
+from app.services.agent_service import AgentContext, AgentService
 
 
 settings = load_settings()
 store = ArtifactStore(settings)
+agent_service = AgentService(store, settings)
 
 app = FastAPI(title="Clutch Factor Backend", version="0.1.0")
 app.add_middleware(
@@ -131,17 +133,15 @@ def portfolio_backtest(universe: str = "all", portfolio_id: str = "main") -> dic
 @app.post("/api/agent/chat")
 def agent_chat(req: AgentRequest) -> dict[str, Any]:
     context = req.context or {}
-    route = context.get("route", "/")
-    date = context.get("date")
-    universe = context.get("universe", "all")
-    markdown = (
-        f"当前上下文：`{route}`，日期 `{date or 'latest'}`，股票池 `{universe}`。\n\n"
-        "这个 V1 Agent 先不接外部 LLM，只返回可审计的应用上下文。后续接 LLM 时，它只能总结后端工具返回的数据。"
+    agent_context = AgentContext(
+        message=req.message,
+        route=str(context.get("route") or "/"),
+        date=context.get("date"),
+        universe=str(context.get("universe") or "all"),
+        benchmark=context.get("benchmark"),
+        locale=context.get("locale"),
+        selected_factor=context.get("selected_factor"),
+        selected_stock=context.get("selected_stock"),
+        selected_portfolio=context.get("selected_portfolio"),
     )
-    return {
-        "markdown": markdown,
-        "artifacts": [
-            {"type": "link", "title": "Open Factor Gallery", "route": "/factors"},
-            {"type": "link", "title": "Open Portfolio Board", "route": "/portfolio"},
-        ],
-    }
+    return agent_service.respond(agent_context)

@@ -1,6 +1,6 @@
 # Backend
 
-FastAPI adapter over `../../research_workspace` artifacts.
+FastAPI adapter over `../../source_code` artifacts.
 
 Run:
 

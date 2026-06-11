@@ -23,7 +23,7 @@ UNIVERSE_FLAGS = {
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Publish layered backtests for all 64 fingerprint factors.")
-    parser.add_argument("--research-workspace", default="../../research_workspace")
+    parser.add_argument("--research-workspace", default="../../source_code")
     parser.add_argument("--product-root", default="", help="Default: <research>/artifacts/product/current")
     parser.add_argument("--fingerprint-file", default="")
     parser.add_argument("--factor-metric-file", default="")
@@ -318,7 +318,7 @@ def update_manifest(product_root: Path) -> None:
 
 def main() -> None:
     args = parse_args()
-    research = resolve_research(args.research_workspace)
+    research = resolve_research(args.source_code)
     product_root = Path(args.product_root).expanduser().resolve() if args.product_root else research / "artifacts" / "product" / "current"
     fp_file = resolve_fingerprint(research, args.fingerprint_file)
     metric_file = resolve_metric_file(research, args.factor_metric_file)

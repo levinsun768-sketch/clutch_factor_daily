@@ -1,16 +1,14 @@
 <script setup lang="ts">
 import { computed, provide, reactive, watch } from 'vue';
 import { useRoute } from 'vue-router';
-import { BarChart3, Bot, Briefcase, GalleryVerticalEnd, Home, Search } from '@lucide/vue';
+import { BarChart3, Briefcase, GalleryVerticalEnd, Home, Search } from '@lucide/vue';
 import GlobalControls from './components/GlobalControls.vue';
-import AgentPanel from './components/AgentPanel.vue';
 import { initialLocale, translate, type Locale } from './i18n';
 
 const route = useRoute();
 const context = reactive({
   date: '',
   universe: 'all',
-  benchmark: 'csi1000',
   locale: initialLocale(),
 });
 const t = (key: string) => translate(context.locale as Locale, key);
@@ -24,7 +22,6 @@ const navItems = [
   { path: '/stocks', labelKey: 'nav.stocks', icon: Search },
   { path: '/portfolio', labelKey: 'nav.portfolio', icon: Briefcase },
 ];
-const pageContext = computed(() => ({ ...context, route: route.path }));
 </script>
 
 <template>
@@ -40,14 +37,12 @@ const pageContext = computed(() => ({ ...context, route: route.path }));
         <span>{{ t(item.labelKey) }}</span>
       </RouterLink>
       <div class="nav-footer">
-        <div class="agent-tag"><Bot :size="16" /> {{ t('nav.artifactAware') }}</div>
         <small>Product layer synced</small>
       </div>
     </aside>
     <main class="workspace">
-      <GlobalControls v-model:date="context.date" v-model:universe="context.universe" v-model:benchmark="context.benchmark" v-model:locale="context.locale" />
+      <GlobalControls v-model:date="context.date" v-model:universe="context.universe" v-model:locale="context.locale" />
       <RouterView />
     </main>
-    <AgentPanel :context="pageContext" />
   </div>
 </template>

@@ -12,7 +12,7 @@ DATE_FMT = "%Y%m%d"
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Run daily research update, inference/backtest tasks, then publish product artifacts.")
-    parser.add_argument("--research-workspace", default="../../research_workspace")
+    parser.add_argument("--research-workspace", default="../../source_code")
     parser.add_argument("--start-date", default="", help="Default: --end-date")
     parser.add_argument("--end-date", default=datetime.now().strftime(DATE_FMT))
     parser.add_argument("--skip-data-update", action="store_true")
@@ -82,7 +82,7 @@ def latest_file(root: Path, pattern: str) -> Path | None:
 
 def main() -> None:
     args = parse_args()
-    research = resolve_research(args.research_workspace)
+    research = resolve_research(args.source_code)
     start_date = args.start_date or args.end_date
     prediction_name = args.prediction_output_name or f"prediction_scores_inference_{args.end_date}.parquet"
 

@@ -22,7 +22,7 @@ from publish_artifacts import (
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Publish date-partitioned product artifacts for a historical date range.")
-    parser.add_argument("--research-workspace", default="../../research_workspace")
+    parser.add_argument("--research-workspace", default="../../source_code")
     parser.add_argument("--output-root", default="", help="Default: <research>/artifacts/product")
     parser.add_argument("--start-date", default="20250101")
     parser.add_argument("--end-date", default="", help="Default: latest available daily_panel date")
@@ -84,13 +84,13 @@ def load_manifest(out_root: Path, current: Path, research: Path, universes: list
     else:
         manifest = {
             "schema_version": 1,
-            "research_workspace": str(research),
+            "source_code": str(research),
             "product_root": str(current),
             "universes": universes,
             "paths": {},
         }
     manifest["published_at"] = datetime.now().isoformat(timespec="seconds")
-    manifest["research_workspace"] = str(research)
+    manifest["source_code"] = str(research)
     manifest["product_root"] = str(current)
     manifest["universes"] = universes
     manifest.setdefault("paths", {}).update({
@@ -109,7 +109,7 @@ def load_manifest(out_root: Path, current: Path, research: Path, universes: list
 
 def main() -> None:
     args = parse_args()
-    research = resolve_research(args.research_workspace)
+    research = resolve_research(args.source_code)
     out_root = Path(args.output_root).expanduser().resolve() if args.output_root else research / "artifacts" / "product"
     current = out_root / "current"
     current.mkdir(parents=True, exist_ok=True)

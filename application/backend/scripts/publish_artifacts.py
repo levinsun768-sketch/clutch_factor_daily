@@ -47,7 +47,7 @@ STYLE_NAMES = {
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Publish research artifacts into a stable product layer for backend APIs.")
-    parser.add_argument("--research-workspace", default="../../research_workspace")
+    parser.add_argument("--research-workspace", default="../../source_code")
     parser.add_argument("--output-root", default="", help="Default: <research>/artifacts/product")
     parser.add_argument("--date", default="", help="Signal/product date YYYYMMDD. Default: latest portfolio date, then latest signal date.")
     parser.add_argument("--portfolio-run", default="", help="Optional explicit portfolio run directory.")
@@ -452,7 +452,7 @@ def publish_references(out: Path, inputs: dict[str, Path | None], copy_heavy: bo
 
 def main() -> None:
     args = parse_args()
-    research = resolve_research(args.research_workspace)
+    research = resolve_research(args.source_code)
     out_root = Path(args.output_root).expanduser().resolve() if args.output_root else research / "artifacts" / "product"
     current = out_root / "current"
     current.mkdir(parents=True, exist_ok=True)
@@ -464,7 +464,7 @@ def main() -> None:
     manifest: dict[str, Any] = {
         "schema_version": 1,
         "published_at": datetime.now().isoformat(timespec="seconds"),
-        "research_workspace": str(research),
+        "source_code": str(research),
         "product_root": str(current),
         "trade_date": date,
         "universes": universes,
