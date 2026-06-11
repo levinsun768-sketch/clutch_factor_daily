@@ -55,6 +55,7 @@ source_code/test_signal.parquet
 *.safetensors
 *.pt
 model_weights.tar.gz
+*.zip
 *.png
 *.jpg
 *.jpeg

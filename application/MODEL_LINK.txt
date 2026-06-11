@@ -7,11 +7,18 @@
 https://github.com/levinsun768-sketch/clutch_factor_daily/releases/download/v1.0/model_weights.tar.gz
 ```
 
-**文件大小**: 7.8 MB
+**文件大小**: 9.8 MB
 
 **包含内容**:
-- `best.pt` - 训练最优权重 (validation loss 最低)
-- `last.pt` - 最后一个 epoch 权重
+- Transformer/Autoencoder fingerprint 模型:
+  - `source_code/artifacts/models/run_20260531_190247/checkpoints/best.pt`
+  - `source_code/artifacts/models/run_20260531_190247/checkpoints/last.pt`
+- DailyFingerprintGRU 下游预测模型:
+  - `source_code/downstream/run/DailyFingerprintGRU_5d_20260531_204908/best_model_seed42.pt`
+  - `source_code/downstream/run/DailyFingerprintGRU_5d_20260531_204908/best_model_seed777.pt`
+  - `source_code/downstream/run/DailyFingerprintGRU_5d_20260531_204908/best_model_seed2024.pt`
+  - `source_code/downstream/run/DailyFingerprintGRU_5d_20260531_204908/feature_columns.json`
+  - `source_code/downstream/run/DailyFingerprintGRU_5d_20260531_204908/predict_config.json`
 
 **解压路径**:
 ```bash
@@ -24,11 +31,20 @@ tar -xzf model_weights.tar.gz
 source_code/artifacts/models/run_20260531_190247/checkpoints/
 ├── best.pt
 └── last.pt
+
+source_code/downstream/run/DailyFingerprintGRU_5d_20260531_204908/
+├── best_model_seed42.pt
+├── best_model_seed777.pt
+├── best_model_seed2024.pt
+├── feature_columns.json
+└── predict_config.json
 ```
 
 ---
 
 ## 模型架构信息
+
+### Fingerprint Transformer / Autoencoder
 
 **模型类型**: Transformer Encoder-Decoder (Autoencoder)
 
@@ -39,6 +55,18 @@ source_code/artifacts/models/run_20260531_190247/checkpoints/
 **输出**:
 - 维度: 64维 Fingerprint (每日单一向量)
 - 用途: 量价指纹，用于下游 GRU 预测模型
+
+### Downstream DailyFingerprintGRU
+
+**模型类型**: GRU ensemble
+
+**输入**:
+- 64维 fingerprint 因子及下游预测特征
+- 特征列记录在 `feature_columns.json`
+
+**输出**:
+- 个股日频预测分数
+- 当前 release 包含 seed 42 / 777 / 2024 三个模型权重
 
 **训练参数**:
 - d_model: 64
@@ -128,7 +156,7 @@ npm run dev -- --host 0.0.0.0 --port 5173
 
 ```
 project/
-├── model_weights.tar.gz           # 7.8MB, 上传到 GitHub Release
+├── model_weights.tar.gz           # 9.8MB, 上传到 GitHub Release
 ├── MODEL_LINK.txt                 # 本说明文件
 ├── source_code/
 │   └── artifacts/models/run_20260531_190247/
